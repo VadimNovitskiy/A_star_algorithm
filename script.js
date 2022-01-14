@@ -1,3 +1,50 @@
+
+const canvas = new fabric.Canvas('canvas', {
+    width: 501,
+    height: 501,
+    backgroundColor: '#181a1b',
+});
+
+for(let i = 0; i < 25; i++) {
+    for(let j = 0; j < 25; j++) {
+        let rect = new fabric.Rect({
+            left: j*20,
+            top: i*20,
+            width: 20, 
+            height: 20, 
+            stroke: 'rgba(255,255,255,0.5)',
+        });
+        canvas.add(rect);
+        rect.hasBorders = false;
+        rect.hasControls = false;
+        rect.lockMovementX = true;
+        rect.lockMovementY = true;
+        addColor(rect);
+    }
+}
+
+function addColor(rect) {
+    let group = new fabric.Group([rect], {
+        subTargetCheck: true
+    });
+    
+    rect.on('mousedown', (event) => {
+        let targetRect = event.target;
+        targetRect.set({fill: 'red'})
+    })
+} 
+
+
+
+
+
+
+
+
+
+
+
+
 const aStar = function (graph, heuristic, start, goal) {
 
     var distances = [];
@@ -41,7 +88,7 @@ const aStar = function (graph, heuristic, start, goal) {
 
         visited[lowestPriorityIndex] = true;
         console.log("Visited nodes: " + visited);
-        // console.log("Currently lowest distances: " + distances);
+        console.log("Currently lowest distances: " + distances);
 
     }
 };
@@ -63,7 +110,7 @@ const small_graph_coordinates = [
     [6, 4],
     [8, 2]
 ];
-// As a heuristic we use straight line distance
+
 const heuristic = [];
 for (let i = 0; i < small_graph_distances.length; i++) {
     heuristic[i] = []
@@ -76,5 +123,5 @@ for (let i = 0; i < small_graph_distances.length; i++) {
     }
 }
 
-console.log(heuristic);
-console.log(aStar(small_graph_distances, heuristic, 0, 5));
+// console.log(heuristic);
+// console.log(aStar(small_graph_distances, heuristic, 0, 5));

@@ -136,10 +136,11 @@ function rendering() {
     for(let i = 0; i < path.length; i++) {
         path[i].show('#4fbcf2');  /// Blue
     }
+    canvas.renderAll();
 }
 
 
-async function draw() {
+function draw() {
     // console.log(openSet);
 
     while(openSet.length > 0) {
@@ -155,7 +156,7 @@ async function draw() {
 
         if(current === end) {
             console.log('Done');
-            return;
+            break;
         }
 
         removeFromArray(openSet, current)
@@ -169,7 +170,7 @@ async function draw() {
             let neighbor = neighbors[i];
 
             if(!closedSet.includes(neighbor)) {
-                let tempG = current.g + heuristic(neighbor, current);
+                let tempG = current.g + 1;
 
                 let newPath = false;
                 if(openSet.includes(neighbor)){
@@ -191,11 +192,13 @@ async function draw() {
             }
         }
         rendering();
-    }
-    console.log('no solution');
-    return;
+    } 
+        // console.log('no solution');
+        // return;
 }
 setup()
+onChange: canvas.renderAll.bind(canvas)
+https://habr.com/ru/post/167119/
 
 
 

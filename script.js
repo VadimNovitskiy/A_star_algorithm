@@ -142,63 +142,65 @@ function rendering() {
 
 function draw() {
     // console.log(openSet);
+    let intervalId = setInterval(() => {
+        if(openSet.length > 0) {
 
-    while(openSet.length > 0) {
-
-        winner = 0;
-        for(let i = 0; i < openSet.length; i++) {
-            if(openSet[i].f < openSet[winner].f) {
-                winner = i;
+            winner = 0;
+            for(let i = 0; i < openSet.length; i++) {
+                if(openSet[i].f < openSet[winner].f) {
+                    winner = i;
+                }
             }
-        }
-        current = openSet[winner];
-        // console.log(current);
-
-        if(current === end) {
-            console.log('Done');
-            break;
-        }
-
-        removeFromArray(openSet, current)
-        closedSet.push(current);
-        // console.log(openSet);
-        // console.log(closedSet);
-
-        let neighbors = current.neighbors;
-
-        for(let i = 0; i < neighbors.length; i++) {
-            let neighbor = neighbors[i];
-
-            if(!closedSet.includes(neighbor)) {
-                let tempG = current.g + 1;
-
-                let newPath = false;
-                if(openSet.includes(neighbor)){
-                    if(tempG < neighbor.g) {
+            current = openSet[winner];
+            // console.log(current);
+    
+            if(current === end) {
+                console.log('Done');
+                clearInterval(intervalId);
+                return;
+            }
+    
+            removeFromArray(openSet, current)
+            closedSet.push(current);
+            // console.log(openSet);
+            // console.log(closedSet);
+    
+            let neighbors = current.neighbors;
+    
+            for(let i = 0; i < neighbors.length; i++) {
+                let neighbor = neighbors[i];
+    
+                if(!closedSet.includes(neighbor)) {
+                    let tempG = current.g + 1;
+    
+                    let newPath = false;
+                    if(openSet.includes(neighbor)){
+                        if(tempG < neighbor.g) {
+                            neighbor.g = tempG;
+                            newPath = true;
+                        } 
+                    } else {
                         neighbor.g = tempG;
                         newPath = true;
-                    } 
-                } else {
-                    neighbor.g = tempG;
-                    newPath = true;
-                    openSet.push(neighbor);
-                }
-
-                if(newPath) {
-                    neighbor.h = heuristic(neighbor, end);
-                    neighbor.f = neighbor.g + neighbor.h;
-                    neighbor.previous = current;
+                        openSet.push(neighbor);
+                    }
+    
+                    if(newPath) {
+                        neighbor.h = heuristic(neighbor, end);
+                        neighbor.f = neighbor.g + neighbor.h;
+                        neighbor.previous = current;
+                    }
                 }
             }
+            rendering();
         }
-        rendering();
-    } 
+    }, 1000) 
         // console.log('no solution');
         // return;
 }
 setup()
-onChange: canvas.renderAll.bind(canvas)
-https://habr.com/ru/post/167119/
+// onChange: canvas.renderAll.bind(canvas)
+// https://habr.com/ru/post/167119/
 
 
 

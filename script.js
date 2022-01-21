@@ -1,4 +1,5 @@
 const startBtn = document.querySelector('#start');
+const restartBtn = document.querySelector('#restart');
 const resetBtn = document.querySelector('#reset');
 
 let state;
@@ -47,11 +48,22 @@ class Spot{
             hoverCursor: "pointer",
         });
 
-        rect.set({fill: col})
+        rect.set({fill: col});
 
         if(this.wall) {
             rect.set({fill: '#00000'})
         }
+
+        rect.on('mousedown', (elem) => {
+            let item = elem.target;
+            
+            if(this.wall) {
+                return;
+            } else {
+                this.wall = true;
+                item.set({fill: '#00000'})
+            }
+        })
 
         rect.hasBorders = false;
         rect.hasControls = false;
@@ -95,10 +107,12 @@ class Spot{
     }
 }
 
+
 function startAlg() {
     setup();
     startBtn.addEventListener('click', draw);
     resetBtn.addEventListener('click', reset);
+    restartBtn.addEventListener('click', restart);
 }
 startAlg();
 
@@ -109,8 +123,24 @@ function reset() {
     closedSet.length = 0;
     path.length = 0;
     grid.length = 0;
-    state = 'start';
     startAlg();
+}
+
+function restart() {
+    startBtn.addEventListener('click', draw);
+    console.log('restart');
+    openSet.forEach((el) => {
+        el.show('#fff');
+    });
+    closedSet.forEach((el) => {
+        el.show('#fff');
+    })
+    openSet.length = 0;
+    closedSet.length = 0;
+    path.length = 0;
+
+    infoForStart();
+    console.log(grid.length);
 }
 
 function removeRect() {
@@ -129,6 +159,15 @@ function removeFromArray(arr, elem) {
             arr.splice(i, 1)
         }
     }
+}
+
+function infoForStart() {
+    start = grid[0][0];
+    end = grid[cols - 1][rows -1];
+    start.wall = false;
+    end.wall = false;
+
+    openSet.push(start);
 }
 
 function setup() {
@@ -157,12 +196,7 @@ function setup() {
         items.wall = true;
     }
 
-    start = grid[0][0];
-    end = grid[cols - 1][rows -1];
-    start.wall = false;
-    end.wall = false;
-
-    openSet.push(start);
+    infoForStart();
 
     for(let i = 0; i < cols; i++) {
         for(let j = 0; j < rows; j++) {
@@ -170,6 +204,7 @@ function setup() {
         }
     }
 }
+
 
 async function draw() {
     startBtn.removeEventListener('click', draw);

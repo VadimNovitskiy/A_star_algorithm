@@ -20,6 +20,7 @@ let start;
 let end;
 let w, h;
 let path = [];
+let wallOfRect = [];
 
 let winner;
 let current;
@@ -51,7 +52,7 @@ class Spot{
         rect.set({fill: col});
 
         if(this.wall) {
-            rect.set({fill: '#00000'})
+            rect.set({fill: '#00000'});
         }
 
         rect.on('mousedown', (elem) => {
@@ -60,6 +61,7 @@ class Spot{
             if(this.wall) {
                 return;
             } else {
+                wallOfRect.push([this.i, this.j]);
                 this.wall = true;
                 item.set({fill: '#00000'})
             }
@@ -109,46 +111,39 @@ class Spot{
 
 
 function startAlg() {
+    getRandom();
     setup();
     startBtn.addEventListener('click', draw);
     resetBtn.addEventListener('click', reset);
-    restartBtn.addEventListener('click', restart);
 }
 startAlg();
 
 function reset() {
     console.log('reset');
     removeRect();
-    openSet.length = 0;
-    closedSet.length = 0;
-    path.length = 0;
-    grid.length = 0;
+    clearArrays(openSet, closedSet, path, grid, wallOfRect);
+
     startAlg();
 }
 
 function restart() {
     startBtn.addEventListener('click', draw);
     console.log('restart');
-    openSet.forEach((el) => {
-        el.show('#fff');
-    });
-    closedSet.forEach((el) => {
-        el.show('#fff');
-    })
-    openSet.length = 0;
-    closedSet.length = 0;
-    path.length = 0;
+    clearArrays(openSet, closedSet, path);
 
-    infoForStart();
-    console.log(grid.length);
+    removeRect();
+    setup();
 }
 
 function removeRect() {
     canvas.clear()
 }
 
+function clearArrays(...array) {
+    array.forEach((elem) => elem.length = 0)
+}
+
 function heuristic(a, b) {
-    // let d = Math.hypot(a.i, a.j, b.i, b.j);
     let d = Math.abs(a.i - b.i) + Math.abs(a.j - b.j)
     return d;
 }
@@ -171,7 +166,6 @@ function infoForStart() {
 }
 
 function setup() {
-
     w = width / cols;
     h = height / rows;
 
@@ -190,10 +184,11 @@ function setup() {
             grid[i][j].addNeighbors(grid);
         }
     }
-    
-    for(let i = 0; i < 700; i++) {
-        let items = grid[Math.floor(Math.random() * cols)][Math.floor(Math.random() * rows)];
-        items.wall = true;
+
+    for(let i = 0; i < wallOfRect.length; i++) {
+        let item = wallOfRect[i];
+        let [a, b] = item;
+        grid[a][b].wall = true;
     }
 
     infoForStart();
@@ -205,6 +200,11 @@ function setup() {
     }
 }
 
+function getRandom() {
+    for(let i = 0; i < 700; i++) {
+        wallOfRect.push([Math.floor(Math.random() * cols), Math.floor(Math.random() * rows)]);
+    }
+}
 
 async function draw() {
     startBtn.removeEventListener('click', draw);
@@ -215,14 +215,24 @@ async function draw() {
 
         await new Promise(resolve => setTimeout(resolve, 1));
 
-        openSet.at(-1).show('#72f738');  /// Green
-        closedSet.at(-1).show('#ff6425'); /// Red
+        if(openSet.length) {
+            openSet.at(-1).show('#72f738');  /// Green
+        } else {
+            alert('There is no way, Bro.')
+            reset();
+            return;
+        }
+        if(closedSet.length) {
+            closedSet.at(-1).show('#ff6425'); /// Red
+        } else {
+            return;
+        }
     }
-    console.log(path.length);
 
     for(let i = 0; i < path.length; i++) {
         path[i].show('#4fbcf2'); /// Blue
     }
+    restartBtn.addEventListener('click', restart);
     return;
 }
 

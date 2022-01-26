@@ -2,7 +2,14 @@ const startBtn = document.querySelector('#start');
 const restartBtn = document.querySelector('#restart');
 const resetBtn = document.querySelector('#reset');
 
-let state;
+const swamp = document.querySelector('.rect-type__swamp');
+const forest = document.querySelector('.rect-type__forest');
+const wall = document.querySelector('.rect-type__wall');
+
+swamp.addEventListener('click', () => state = 'swamp');
+forest.addEventListener('click', () => state = 'forest');
+wall.addEventListener('click', () => state = 'wall');
+
 let cols = 50;
 let rows = 50;
 let width = 800;
@@ -21,9 +28,13 @@ let end;
 let w, h;
 let path = [];
 let wallOfRect = [];
+let swampOfRect = [];
+let forestOfRect = [];
 
 let winner;
 let current;
+
+let state;
 
 class Spot{
     constructor(i, j) {
@@ -36,12 +47,14 @@ class Spot{
 
         this.neighbors = [];
         this.previous = undefined;
+        this.swamp = false;
+        this.forest = false;
         this.wall = false;
+        this.animate = false;
     }
 
-    show(col) {
+    show(col, opc = 1) {
         let rect = new fabric.Rect({
-            // stroke: '#fff',
             top: this.i * w, 
             left: this.j * h,
             width: w - 1,
@@ -49,21 +62,67 @@ class Spot{
             hoverCursor: "pointer",
         });
 
-        rect.set({fill: col});
+        rect.set({
+            fill: col,
+            opacity: opc,
+        });
 
         if(this.wall) {
             rect.set({fill: '#00000'});
         }
+        if(this.swamp) {
+            rect.set({fill: '#8c822e'});
+        }
+        if(this.forest) {
+            rect.set({fill: '#99f34e'});
+        }
+
+        // if(this.animate) {
+        //     rect.set({fill: '#00ffed'})
+        //     rect.animate ('top', 500, {
+        //         onChange: canvas.renderAll.bind (canvas),
+        //         duration: 1000,
+        //         easing: fabric.util.ease.easeOutBounce
+        //     }); 
+        // }
 
         rect.on('mousedown', (elem) => {
             let item = elem.target;
             
-            if(this.wall) {
-                return;
-            } else {
-                wallOfRect.push([this.i, this.j]);
-                this.wall = true;
-                item.set({fill: '#00000'})
+            switch(state) {
+                case 'swamp':
+                    if(this.swamp) {
+                        return;
+                    } else {
+                        swampOfRect.push([this.i, this.j]);
+                        this.swamp = true;
+                        this.wall = false;
+                        this.forest = false;
+                        item.set({fill: '#8c822e'});
+                    }
+                    break;
+                case 'forest':
+                    if(this.forest) {
+                        return;
+                    } else {
+                        forestOfRect.push([this.i, this.j]);
+                        this.forest = true;
+                        this.swamp = false;
+                        this.wall = false;
+                        item.set({fill: '#99f34e'});
+                    }
+                    break;
+                case 'wall':
+                    if(this.wall) {
+                        return;
+                    } else {
+                        wallOfRect.push([this.i, this.j]);
+                        this.wall = true;
+                        this.swamp = false;
+                        this.forest = false;
+                        item.set({fill: '#00000'});
+                    }
+                    break;
             }
         })
 
@@ -72,7 +131,7 @@ class Spot{
         rect.lockMovementX = true;
         rect.lockMovementY = true;
         rect.subTargetCheck =  true;
-        canvas.add(rect);
+        canvas.add(rect);  
     }
 
     static render() {
@@ -94,6 +153,8 @@ class Spot{
         if(j > 0) {
             this.neighbors.push(grid[i][j - 1]);
         }
+
+
         if (i > 0 && j > 0) {
             this.neighbors.push(grid[i - 1][j - 1]);
         }
@@ -103,12 +164,11 @@ class Spot{
         if (i > 0 && j < rows - 1) {
             this.neighbors.push(grid[i - 1][j + 1]);
         }
-        // if (i < cols - 1 && j < rows - 1) {
-        //     this.neighbors.push(grid[i + 1][j + 1]);
-        // }
+        if (i < cols - 1 && j < rows - 1) {
+            this.neighbors.push(grid[i + 1][j + 1]);
+        }
     }
 }
-
 
 function startAlg() {
     getRandom();
@@ -120,8 +180,16 @@ startAlg();
 
 function reset() {
     console.log('reset');
+
+    // rect.set({fill: '#00ffed'})
+    // rect.animate ('top', 500, {
+    //     onChange: canvas.renderAll.bind (canvas),
+    //     duration: 1000,
+    //     easing: fabric.util.ease.easeOutBounce
+    // }); 
+
     removeRect();
-    clearArrays(openSet, closedSet, path, grid, wallOfRect);
+    clearArrays(openSet, closedSet, path, grid, wallOfRect, swampOfRect, forestOfRect);
 
     startAlg();
 }
@@ -191,6 +259,18 @@ function setup() {
         grid[a][b].wall = true;
     }
 
+    for(let i = 0; i < forestOfRect.length; i++) {
+        let item = forestOfRect[i];
+        let [a, b] = item;
+        grid[a][b].forest = true;
+    }
+
+    for(let i = 0; i < swampOfRect.length; i++) {
+        let item = swampOfRect[i];
+        let [a, b] = item;
+        grid[a][b].swamp = true;
+    }
+
     infoForStart();
 
     for(let i = 0; i < cols; i++) {
@@ -206,6 +286,7 @@ function getRandom() {
     }
 }
 
+
 async function draw() {
     startBtn.removeEventListener('click', draw);
 
@@ -216,7 +297,7 @@ async function draw() {
         await new Promise(resolve => setTimeout(resolve, 1));
 
         if(openSet.length) {
-            openSet.at(-1).show('#72f738');  /// Green
+            openSet.at(-1).show('#00ffed');  /// Green
         } else {
             alert('There is no way, Bro.')
             reset();
@@ -232,6 +313,21 @@ async function draw() {
     for(let i = 0; i < path.length; i++) {
         path[i].show('#4fbcf2'); /// Blue
     }
+    
+    for(let b = 0; b < path.length - 1; b++) {
+        path.line = true;
+        let x1 = path[b].j * h + 8;
+        let y1 = path[b].i * w + 8;
+        let x2 = path[b + 1].j * h + 8;
+        let y2 = path[b + 1].i * w + 8;
+
+        let line = new fabric.Line([x1, y1, x2, y2], {
+        stroke: 'red',
+        strokeWidth: 2,
+        });
+        canvas.add(line); 
+    }
+    
     restartBtn.addEventListener('click', restart);
     return;
 }
@@ -269,6 +365,27 @@ function* algo() {
             let neighbor = neighbors[i];
 
             if(!closedSet.includes(neighbor) && !neighbor.wall) {
+
+                if(neighbor.i === current.i - 1 && neighbor.j === current.j - 1) {
+                    current.g += 2;
+                }
+                if(neighbor.i === current.i + 1 && neighbor.j === current.j - 1) {
+                    current.g += 2;
+                }
+                if(neighbor.i === current.i - 1 && neighbor.j === current.j + 1) {
+                    current.g += 2;
+                }
+                if(neighbor.i === current.i + 1 && neighbor.j === current.j + 1) {
+                    current.g += 2;
+                }
+
+                if(neighbor.swamp) {
+                    current.g += 4;
+                }
+
+                if(neighbor.forest) {
+                    current.g += 2;
+                }
 
                 let tempG = current.g + 1;
                 let newPath = false;

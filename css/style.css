@@ -115,3 +115,63 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 10px;
   color: white;
 }
+
+#reset:hover, #restart:hover, #start:hover {
+  opacity: 0.7;
+}
+
+.rect-type {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: horizontal;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: row;
+          flex-direction: row;
+  width: 300px;
+  margin: 20px 0;
+  color: white;
+  cursor: default;
+}
+
+.rect-type__swamp {
+  width: 16px;
+  height: 16px;
+  background-color: #8c822e;
+  margin: 0 10px 0 20px;
+  -webkit-transition-duration: 0.2s;
+          transition-duration: 0.2s;
+}
+
+.rect-type__swamp:hover {
+  -webkit-transform: scale(1.5, 1.5);
+          transform: scale(1.5, 1.5);
+}
+
+.rect-type__forest {
+  width: 16px;
+  height: 16px;
+  background-color: #99f34e;
+  margin: 0 10px 0 20px;
+  -webkit-transition-duration: 0.2s;
+          transition-duration: 0.2s;
+}
+
+.rect-type__forest:hover {
+  -webkit-transform: scale(1.5, 1.5);
+          transform: scale(1.5, 1.5);
+}
+
+.rect-type__wall {
+  width: 16px;
+  height: 16px;
+  background-color: #000000;
+  margin: 0 10px 0 20px;
+  -webkit-transition-duration: 0.2s;
+          transition-duration: 0.2s;
+}
+
+.rect-type__wall:hover {
+  -webkit-transform: scale(1.5, 1.5);
+          transform: scale(1.5, 1.5);
+}

@@ -50,7 +50,7 @@ class Spot{
         this.swamp = false;
         this.forest = false;
         this.wall = false;
-        this.animate = false;
+        this.selected = false;
     }
 
     show(col, opc = 1) {
@@ -76,15 +76,6 @@ class Spot{
         if(this.forest) {
             rect.set({fill: '#99f34e'});
         }
-
-        // if(this.animate) {
-        //     rect.set({fill: '#00ffed'})
-        //     rect.animate ('top', 500, {
-        //         onChange: canvas.renderAll.bind (canvas),
-        //         duration: 1000,
-        //         easing: fabric.util.ease.easeOutBounce
-        //     }); 
-        // }
 
         rect.on('mousedown', (elem) => {
             let item = elem.target;
@@ -181,16 +172,8 @@ startAlg();
 function reset() {
     console.log('reset');
 
-    // rect.set({fill: '#00ffed'})
-    // rect.animate ('top', 500, {
-    //     onChange: canvas.renderAll.bind (canvas),
-    //     duration: 1000,
-    //     easing: fabric.util.ease.easeOutBounce
-    // }); 
-
     removeRect();
     clearArrays(openSet, closedSet, path, grid, wallOfRect, swampOfRect, forestOfRect);
-
     startAlg();
 }
 
